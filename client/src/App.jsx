@@ -25,7 +25,7 @@ function App() {
   const [playingAs, setPlayingAs] = useState(null);
 
   const playOnlineClick = () => {
-    const newSocket = io("http://localhost:3000", {
+    const newSocket = io(import.meta.env.VITE_SOCKET_URI, {
       autoConnect: true,
     });
     newSocket?.emit("request_to_play", {

@@ -1,11 +1,16 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
+const dotenv = require("dotenv");
+
+dotenv.config({
+  path: ".env",
+});
 
 const httpServer = createServer();
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URI,
   },
 });
 
