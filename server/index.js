@@ -9,7 +9,7 @@ const io = new Server(httpServer, {
   },
 });
 
-let players = [];
+let players = {};
 
 io.on("connection", (socket) => {
   players[socket.id] = {
@@ -20,13 +20,13 @@ io.on("connection", (socket) => {
     const currPlayer = players[socket.id];
     currPlayer.playerName = playerName;
     let opponentPlayer;
-    for (const player in players) {
+    for (const playerId in players) {
       if (
-        players[player].status === "Online" &&
-        !players[player].playing &&
-        player !== socket.id
+        players[playerId].status === "Online" &&
+        !players[playerId].playing &&
+        playerId !== socket.id
       ) {
-        opponentPlayer = players[player];
+        opponentPlayer = players[playerId];
         break;
       }
     }
@@ -46,12 +46,13 @@ io.on("connection", (socket) => {
         playingAs: "X",
         turn: false,
       });
+
       currPlayer.socket.on("playerMoveFromClient", ({ gameState }) => {
-        console.log(gameState);
+        // console.log(gameState);
         opponentPlayer.socket.emit("playerMoveFromServer", { gameState });
       });
       opponentPlayer.socket.on("playerMoveFromClient", ({ gameState }) => {
-        console.log(gameState);
+        // console.log(gameState);
         currPlayer.socket.emit("playerMoveFromServer", { gameState });
       });
     } else {
@@ -59,14 +60,17 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("disconnect", () => {
-    players[socket.id] = {
-      socket: { ...socket, online: false },
-      playerName: players[socket.id].playerName,
-      status: "Offline",
-    };
-    const currPlayer = players[socket.id];
-    console.log(currPlayer);
-    // socket.emit("Opponent Left The Match");
+    const disconnectedPlayer = players[socket.id];
+    disconnectedPlayer.playing = false;
+    disconnectedPlayer.status = "Offline";
+    if (disconnectedPlayer.opponent) {
+      disconnectedPlayer.opponent.socket.emit("OpponentLeftTheMatch");
+      delete disconnectedPlayer.opponent.opponentName;
+      delete disconnectedPlayer.opponent.playingAs;
+      delete disconnectedPlayer.opponent.turn;
+    }
+    // delete players[socket.id];
+    // console.log(players);
   });
 });
 

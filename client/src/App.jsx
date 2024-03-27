@@ -113,7 +113,7 @@ function App() {
 
   socket?.on("OpponentLeftTheMatch", () => {
     console.log("left");
-    gameFinished("Opponent Left The Match");
+    setGameFinished("Opponent Left The Match");
   });
 
   // useEffect(() => {
