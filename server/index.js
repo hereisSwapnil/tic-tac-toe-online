@@ -10,8 +10,7 @@ const httpServer = createServer();
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URI,
-    methods: ["GET", "POST"],
+    origin: "http://localhost:5173",
   },
 });
 
